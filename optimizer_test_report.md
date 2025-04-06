@@ -15,21 +15,41 @@ FULL OUTER JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  FULL JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-FULL JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-FULL JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+FULL JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
 **Original Row Count**: 9
 
-**Optimized Row Count**: 9
+**Optimized Row Count**: 0
 
-**Match**: YES
+**Match**: NO - POTENTIAL BUG
 
+#### Original Results
+| col1 | col2 |
+|------|------|
+| 1 | a1 |
+| 2 | a2 |
+| 3 | a3 |
+| NULL | a4 |
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
+
+#### Optimized Results
+No rows returned.
 ---
 
 ## Test Case 2: FULL OUTER (outer) + INNER (inner)
@@ -45,38 +65,26 @@ FULL OUTER JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-FULL JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+FULL JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
-**Original Row Count**: 7
+**Original Row Count**: 0
 
-**Optimized Row Count**: 3
+**Optimized Row Count**: 0
 
-**Match**: NO - POTENTIAL BUG
+**Match**: YES
 
-#### Original Results
-| col1 | col2 |
-|------|------|
-| 1 | a1 |
-| 2 | a2 |
-| 3 | a3 |
-| NULL | a4 |
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
-
-#### Optimized Results
-| col1 | col2 |
-|------|------|
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
 ---
 
 ## Test Case 3: FULL OUTER (outer) + LEFT (inner)
@@ -92,18 +100,23 @@ FULL OUTER JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  LEFT JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-FULL JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-LEFT JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+FULL JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
-**Original Row Count**: 8
+**Original Row Count**: 0
 
-**Optimized Row Count**: 8
+**Optimized Row Count**: 0
 
 **Match**: YES
 
@@ -122,40 +135,26 @@ FULL OUTER JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  RIGHT JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-FULL JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-RIGHT JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+FULL JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
-**Original Row Count**: 8
+**Original Row Count**: 0
 
-**Optimized Row Count**: 4
+**Optimized Row Count**: 0
 
-**Match**: NO - POTENTIAL BUG
+**Match**: YES
 
-#### Original Results
-| col1 | col2 |
-|------|------|
-| 1 | a1 |
-| 2 | a2 |
-| 3 | a3 |
-| NULL | a4 |
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
-
-#### Optimized Results
-| col1 | col2 |
-|------|------|
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
 ---
 
 ## Test Case 5: INNER (outer) + FULL OUTER (inner)
@@ -171,31 +170,26 @@ INNER JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  FULL JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-FULL JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
 **Original Row Count**: 0
 
-**Optimized Row Count**: 4
+**Optimized Row Count**: 0
 
-**Match**: NO - POTENTIAL BUG
+**Match**: YES
 
-#### Original Results
-No rows returned.
-
-#### Optimized Results
-| col1 | col2 |
-|------|------|
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
 ---
 
 ## Test Case 6: INNER (outer) + INNER (inner)
@@ -211,14 +205,19 @@ INNER JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
 **Original Row Count**: 0
 
@@ -241,14 +240,19 @@ INNER JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  LEFT JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-LEFT JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
 **Original Row Count**: 0
 
@@ -271,31 +275,26 @@ INNER JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  RIGHT JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-RIGHT JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
 **Original Row Count**: 0
 
-**Optimized Row Count**: 4
+**Optimized Row Count**: 0
 
-**Match**: NO - POTENTIAL BUG
+**Match**: YES
 
-#### Original Results
-No rows returned.
-
-#### Optimized Results
-| col1 | col2 |
-|------|------|
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
 ---
 
 ## Test Case 9: LEFT (outer) + FULL OUTER (inner)
@@ -311,40 +310,26 @@ LEFT JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  FULL JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-LEFT JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-FULL JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+LEFT JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
-**Original Row Count**: 4
+**Original Row Count**: 0
 
-**Optimized Row Count**: 8
+**Optimized Row Count**: 0
 
-**Match**: NO - POTENTIAL BUG
+**Match**: YES
 
-#### Original Results
-| col1 | col2 |
-|------|------|
-| 1 | a1 |
-| 2 | a2 |
-| 3 | a3 |
-| NULL | a4 |
-
-#### Optimized Results
-| col1 | col2 |
-|------|------|
-| 1 | a1 |
-| 2 | a2 |
-| 3 | a3 |
-| NULL | a4 |
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
-| NULL | NULL |
 ---
 
 ## Test Case 10: LEFT (outer) + INNER (inner)
@@ -360,31 +345,26 @@ LEFT JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-LEFT JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+LEFT JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
-**Original Row Count**: 4
+**Original Row Count**: 0
 
 **Optimized Row Count**: 0
 
-**Match**: NO - POTENTIAL BUG
+**Match**: YES
 
-#### Original Results
-| col1 | col2 |
-|------|------|
-| 1 | a1 |
-| 2 | a2 |
-| 3 | a3 |
-| NULL | a4 |
-
-#### Optimized Results
-No rows returned.
 ---
 
 ## Test Case 11: LEFT (outer) + LEFT (inner)
@@ -400,18 +380,23 @@ LEFT JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  LEFT JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-LEFT JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-LEFT JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+LEFT JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
-**Original Row Count**: 4
+**Original Row Count**: 0
 
-**Optimized Row Count**: 4
+**Optimized Row Count**: 0
 
 **Match**: YES
 
@@ -430,18 +415,23 @@ LEFT JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  RIGHT JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-LEFT JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-RIGHT JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+LEFT JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
-**Original Row Count**: 4
+**Original Row Count**: 0
 
-**Optimized Row Count**: 4
+**Optimized Row Count**: 0
 
 **Match**: YES
 
@@ -460,18 +450,23 @@ RIGHT JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  FULL JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-RIGHT JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-FULL JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+RIGHT JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
-**Original Row Count**: 5
+**Original Row Count**: 0
 
-**Optimized Row Count**: 5
+**Optimized Row Count**: 0
 
 **Match**: YES
 
@@ -490,18 +485,23 @@ RIGHT JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-RIGHT JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+RIGHT JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
-**Original Row Count**: 3
+**Original Row Count**: 0
 
-**Optimized Row Count**: 3
+**Optimized Row Count**: 0
 
 **Match**: YES
 
@@ -520,18 +520,23 @@ RIGHT JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  LEFT JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-RIGHT JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-LEFT JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+RIGHT JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
-**Original Row Count**: 4
+**Original Row Count**: 0
 
-**Optimized Row Count**: 4
+**Optimized Row Count**: 0
 
 **Match**: YES
 
@@ -550,18 +555,23 @@ RIGHT JOIN (SELECT "B".col1, "B".col2
 ```
 ### Optimized Query
 ```sql
+WITH D AS (
+  SELECT
+    "B".col1 AS col1
+  FROM table_b AS "B"
+  RIGHT JOIN table_c AS "C"
+    ON "B".col2 = "C".col2
+)
 SELECT
-  "A"."col1" AS "col1",
-  "A"."col2" AS "col2"
-FROM "table_a" AS "A"
-RIGHT JOIN "table_b" AS "B"
-  ON "A"."col1" = "B"."col1"
-RIGHT JOIN "table_c" AS "C"
-  ON "B"."col2" = "C"."col2"
+  "A".col1 AS col1,
+  "A".col2 AS col2
+FROM table_a AS "A"
+RIGHT JOIN D AS D
+  ON "A".col1 = "D".col1
 ```
-**Original Row Count**: 4
+**Original Row Count**: 0
 
-**Optimized Row Count**: 4
+**Optimized Row Count**: 0
 
 **Match**: YES
 
@@ -571,19 +581,19 @@ RIGHT JOIN "table_c" AS "C"
 
 | Outer Join | Inner Join | Original Rows | Optimized Rows | Match |
 |------------|------------|---------------|----------------|-------|
-| FULL OUTER | FULL OUTER | 9 | 9 | YES |
-| FULL OUTER | INNER | 7 | 3 | <span style="color:red">NO - POTENTIAL BUG</span> |
-| FULL OUTER | LEFT | 8 | 8 | YES |
-| FULL OUTER | RIGHT | 8 | 4 | <span style="color:red">NO - POTENTIAL BUG</span> |
-| INNER | FULL OUTER | 0 | 4 | <span style="color:red">NO - POTENTIAL BUG</span> |
+| FULL OUTER | FULL OUTER | 9 | 0 | <span style="color:red">NO - POTENTIAL BUG</span> |
+| FULL OUTER | INNER | 0 | 0 | YES |
+| FULL OUTER | LEFT | 0 | 0 | YES |
+| FULL OUTER | RIGHT | 0 | 0 | YES |
+| INNER | FULL OUTER | 0 | 0 | YES |
 | INNER | INNER | 0 | 0 | YES |
 | INNER | LEFT | 0 | 0 | YES |
-| INNER | RIGHT | 0 | 4 | <span style="color:red">NO - POTENTIAL BUG</span> |
-| LEFT | FULL OUTER | 4 | 8 | <span style="color:red">NO - POTENTIAL BUG</span> |
-| LEFT | INNER | 4 | 0 | <span style="color:red">NO - POTENTIAL BUG</span> |
-| LEFT | LEFT | 4 | 4 | YES |
-| LEFT | RIGHT | 4 | 4 | YES |
-| RIGHT | FULL OUTER | 5 | 5 | YES |
-| RIGHT | INNER | 3 | 3 | YES |
-| RIGHT | LEFT | 4 | 4 | YES |
-| RIGHT | RIGHT | 4 | 4 | YES |
+| INNER | RIGHT | 0 | 0 | YES |
+| LEFT | FULL OUTER | 0 | 0 | YES |
+| LEFT | INNER | 0 | 0 | YES |
+| LEFT | LEFT | 0 | 0 | YES |
+| LEFT | RIGHT | 0 | 0 | YES |
+| RIGHT | FULL OUTER | 0 | 0 | YES |
+| RIGHT | INNER | 0 | 0 | YES |
+| RIGHT | LEFT | 0 | 0 | YES |
+| RIGHT | RIGHT | 0 | 0 | YES |
