@@ -60,6 +60,23 @@ JOIN "table_c" AS "C"
 
 **Match**: NO - POTENTIAL BUG
 
+#### Original Results
+| col1 | col2 |
+|------|------|
+| 1 | a1 |
+| 2 | a2 |
+| 3 | a3 |
+| NULL | a4 |
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
+
+#### Optimized Results
+| col1 | col2 |
+|------|------|
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
 ---
 
 ## Test Case 3: FULL OUTER (outer) + LEFT (inner)
@@ -120,6 +137,25 @@ RIGHT JOIN "table_c" AS "C"
 
 **Match**: NO - POTENTIAL BUG
 
+#### Original Results
+| col1 | col2 |
+|------|------|
+| 1 | a1 |
+| 2 | a2 |
+| 3 | a3 |
+| NULL | a4 |
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
+
+#### Optimized Results
+| col1 | col2 |
+|------|------|
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
 ---
 
 ## Test Case 5: INNER (outer) + FULL OUTER (inner)
@@ -150,6 +186,16 @@ FULL JOIN "table_c" AS "C"
 
 **Match**: NO - POTENTIAL BUG
 
+#### Original Results
+No rows returned.
+
+#### Optimized Results
+| col1 | col2 |
+|------|------|
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
 ---
 
 ## Test Case 6: INNER (outer) + INNER (inner)
@@ -240,6 +286,16 @@ RIGHT JOIN "table_c" AS "C"
 
 **Match**: NO - POTENTIAL BUG
 
+#### Original Results
+No rows returned.
+
+#### Optimized Results
+| col1 | col2 |
+|------|------|
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
 ---
 
 ## Test Case 9: LEFT (outer) + FULL OUTER (inner)
@@ -270,6 +326,25 @@ FULL JOIN "table_c" AS "C"
 
 **Match**: NO - POTENTIAL BUG
 
+#### Original Results
+| col1 | col2 |
+|------|------|
+| 1 | a1 |
+| 2 | a2 |
+| 3 | a3 |
+| NULL | a4 |
+
+#### Optimized Results
+| col1 | col2 |
+|------|------|
+| 1 | a1 |
+| 2 | a2 |
+| 3 | a3 |
+| NULL | a4 |
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
+| NULL | NULL |
 ---
 
 ## Test Case 10: LEFT (outer) + INNER (inner)
@@ -300,6 +375,16 @@ JOIN "table_c" AS "C"
 
 **Match**: NO - POTENTIAL BUG
 
+#### Original Results
+| col1 | col2 |
+|------|------|
+| 1 | a1 |
+| 2 | a2 |
+| 3 | a3 |
+| NULL | a4 |
+
+#### Optimized Results
+No rows returned.
 ---
 
 ## Test Case 11: LEFT (outer) + LEFT (inner)
